@@ -1,0 +1,9 @@
+{% extends "records/base.html" %}
+{% block title %}Sign in{% endblock %}
+{% block content %}
+<div class="card" style="max-width:420px;margin:40px auto">
+<h1>Sign in</h1>
+<form method="post" class="stack">{% csrf_token %}{{ form.as_p }}
+<input type="hidden" name="next" value="{{ next }}"><button class="btn">Sign in</button></form>
+</div>
+{% endblock %}

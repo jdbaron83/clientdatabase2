@@ -1,0 +1,30 @@
+{% extends "records/base.html" %}
+{% block title %}Waitlist{% endblock %}
+{% block content %}
+<h1>Waitlist</h1>
+<div class="actions">
+<form class="filters" method="get">
+<select name="status" onchange="this.form.submit()">
+{% for value, label in statuses %}<option value="{{ value }}" {% if status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+<option value="all" {% if status == "all" %}selected{% endif %}>All</option></select>
+<select name="funding" onchange="this.form.submit()"><option value="">All funding sources</option>
+{% for f in funding_sources %}<option value="{{ f.pk }}" {% if funding == f.pk|stringformat:"s" %}selected{% endif %}>{{ f }}</option>{% endfor %}</select>
+</form>
+{% if perms.records.add_waitlistentry %}<a class="btn" href="{% url 'waitlist_create' %}">Add to waitlist</a>{% endif %}
+</div>
+<div class="table-wrap"><table>
+<tr><th>Rank</th><th>Client</th><th>DOB</th><th>Funding</th><th>Referral / notes</th><th>Added</th><th>Days</th><th>Status</th><th></th></tr>
+{% for w in page %}
+<tr><td>{{ w.rank|default:"" }}</td><td><a href="{{ w.client.get_absolute_url }}">{{ w.client }}</a></td>
+<td>{{ w.client.date_of_birth|date:"m/d/Y" }}</td><td>{{ w.funding_source|default:"" }}</td>
+<td>{{ w.secondary_funding }}{% if w.referral_source %}<br><span class="muted">{{ w.referral_source }}</span>{% endif %}{% if w.closed_reason %}<br><span class="muted">{{ w.closed_reason }}</span>{% endif %}</td>
+<td>{{ w.date_added|date:"m/d/Y" }}</td><td>{{ w.days_waiting|default_if_none:"" }}</td>
+<td><span class="badge {{ w.status }}">{{ w.get_status_display }}</span></td>
+<td style="white-space:nowrap">{% if w.status == "waiting" or w.status == "on_hold" %}
+{% if perms.records.add_episode %}<a href="{% url 'waitlist_admit' w.pk %}">Admit</a> · {% endif %}
+{% if perms.records.change_waitlistentry %}<a href="{% url 'waitlist_update' w.pk %}">Edit</a> · <a href="{% url 'waitlist_close' w.pk %}">Remove</a>{% endif %}
+{% endif %}</td></tr>
+{% empty %}<tr><td colspan="9" class="muted">Nobody here.</td></tr>{% endfor %}
+</table></div>
+{% include "records/pager.html" %}
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends "records/base.html" %}
+{% block title %}Clients{% endblock %}
+{% block content %}
+<h1>Clients</h1>
+<div class="actions">
+<form class="filters" method="get">
+  <input name="q" value="{{ q }}" placeholder="Name, client ID, SSN or last 4" size="32" autofocus>
+  <select name="status"><option value="">All clients</option><option value="active" {% if status == "active" %}selected{% endif %}>Currently active</option></select>
+  <button class="btn secondary">Search</button>
+</form>
+{% if perms.records.add_client %}<a class="btn" href="{% url 'client_create' %}">New client</a>{% endif %}
+</div>
+<div class="table-wrap"><table>
+<tr><th>Name</th><th>DOB</th><th>SSN</th><th>Admissions</th></tr>
+{% for c in page %}
+<tr><td><a href="{{ c.get_absolute_url }}">{{ c.last_name }}, {{ c.first_name }}</a></td>
+<td>{{ c.date_of_birth|date:"m/d/Y" }}</td><td>{{ c.ssn_masked }}</td><td>{{ c.episode_count }}</td></tr>
+{% empty %}<tr><td colspan="4" class="muted">No clients found.</td></tr>{% endfor %}
+</table></div>
+{% include "records/pager.html" %}
+{% endblock %}

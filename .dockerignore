@@ -1,0 +1,6 @@
+.env
+data/
+*.xlsx
+seed_review*.csv
+__pycache__/
+staticfiles/
