@@ -90,3 +90,14 @@ class SeedParsingTests(TestCase):
         self.assertEqual(discharge_reason("Successfull"), DischargeReason.SUCCESSFUL)
         self.assertEqual(discharge_reason("", "Admin D/C - drug use"), DischargeReason.ADMIN)
         self.assertEqual(discharge_reason("D/C to HLC"), DischargeReason.HOSPITAL)
+
+
+class SetupRolesTests(TestCase):
+    def test_creates_groups(self):
+        from django.contrib.auth.models import Group
+        from django.core.management import call_command
+
+        call_command("setup_roles", stdout=open("/dev/null", "w"))
+        supervisor = Group.objects.get(name="Supervisor")
+        self.assertTrue(supervisor.permissions.filter(codename="view_full_ssn").exists())
+        self.assertFalse(Group.objects.get(name="Billing").permissions.filter(codename="view_full_ssn").exists())

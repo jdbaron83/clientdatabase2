@@ -19,13 +19,31 @@ services:
     env_file: .env
     environment:
       POSTGRES_HOST: db
-    ports:
-      - "127.0.0.1:8000:8000"
+    expose:
+      - "8000"
     volumes:
       - ./data:/data:ro
     depends_on:
       db:
         condition: service_healthy
 
+  # Serves the app over HTTPS and gets a free Let's Encrypt certificate for DOMAIN automatically.
+  caddy:
+    image: caddy:2.8
+    restart: unless-stopped
+    environment:
+      DOMAIN: ${DOMAIN:?set DOMAIN in .env}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - web
+
 volumes:
   pgdata:
+  caddy_data:
+  caddy_config:

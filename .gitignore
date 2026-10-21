@@ -5,3 +5,4 @@ staticfiles/
 data/
 *.xlsx
 seed_review*.csv
+backups/
