@@ -1,0 +1,16 @@
+{% extends "records/base.html" %}
+{% block title %}Census{% endblock %}
+{% block content %}
+<h1>Current census <span class="muted">({{ episodes|length }})</span></h1>
+<form class="filters" method="get">
+<select name="funding" onchange="this.form.submit()"><option value="">All funding sources</option>
+{% for f in funding_sources %}<option value="{{ f.pk }}" {% if funding == f.pk|stringformat:"s" %}selected{% endif %}>{{ f }}</option>{% endfor %}</select>
+</form>
+<div class="table-wrap"><table>
+<tr><th>Funding source</th><th>Bed</th><th>Client</th><th>Client ID</th><th>Admitted</th><th>LOS</th></tr>
+{% for e in episodes %}
+<tr><td>{{ e.funding_source }}</td><td>{{ e.bed }}</td><td><a href="{{ e.get_absolute_url }}">{{ e.client }}</a></td>
+<td>{{ e.record_id }}</td><td>{{ e.admit_date|date:"m/d/Y" }}</td><td>{{ e.length_of_stay }}</td></tr>
+{% empty %}<tr><td colspan="6" class="muted">No active clients.</td></tr>{% endfor %}
+</table></div>
+{% endblock %}

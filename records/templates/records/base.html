@@ -1,0 +1,28 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>{% block title %}Client records{% endblock %}</title>
+<link rel="stylesheet" href="{% static 'records/app.css' %}">
+</head>
+<body>
+<header><nav>
+  <a class="brand" href="{% url 'dashboard' %}">Client records</a>
+  {% if user.is_authenticated %}
+  <a href="{% url 'client_list' %}">Clients</a>
+  <a href="{% url 'census' %}">Census</a>
+  <a href="{% url 'authorization_list' %}">Authorizations</a>
+  <a href="{% url 'waitlist' %}">Waitlist</a>
+  {% if perms.records.view_auditlog %}<a href="{% url 'audit_log' %}">Audit log</a>{% endif %}
+  {% if user.is_staff %}<a href="{% url 'admin:index' %}">Admin</a>{% endif %}
+  <span class="right"><span>{{ user.get_username }}</span>
+    <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button>Log out</button></form></span>
+  {% endif %}
+</nav></header>
+<main>
+{% if messages %}<ul class="messages">{% for m in messages %}<li>{{ m }}</li>{% endfor %}</ul>{% endif %}
+{% block content %}{% endblock %}
+</main>
+</body>
+</html>

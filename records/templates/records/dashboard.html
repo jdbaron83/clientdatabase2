@@ -1,0 +1,39 @@
+{% extends "records/base.html" %}
+{% block content %}
+<h1>Dashboard</h1>
+<div class="grid">
+  <div class="card"><div class="muted">Active clients</div><div class="stat">{{ active_total }}</div>
+    <div class="muted">{{ residential_total }} residential</div></div>
+  <div class="card"><div class="muted">Waiting for a bed</div><div class="stat">{{ waiting_total }}</div>
+    <a href="{% url 'waitlist' %}">Open waitlist</a></div>
+  <div class="card"><div class="muted">Authorizations expiring in 14 days</div><div class="stat">{{ expiring|length }}</div>
+    <div class="muted">{{ needs_auth|length }} active admissions still need an auth number</div></div>
+</div>
+
+<h2>Census by funding source</h2>
+<div class="table-wrap"><table>
+<tr><th>Funding source</th><th>Level of care</th><th>Active</th><th>Capacity</th></tr>
+{% for row in census %}
+<tr><td>{{ row.funding_source__name }}</td><td>{{ row.funding_source__level_of_care|capfirst }}</td>
+<td>{{ row.n }}</td><td>{{ row.funding_source__bed_capacity|default:"" }}</td></tr>
+{% empty %}<tr><td colspan="4" class="muted">No active clients.</td></tr>{% endfor %}
+</table></div>
+
+<h2>Authorizations expiring soon</h2>
+<div class="table-wrap"><table>
+<tr><th>Client</th><th>Funding</th><th>Auth #</th><th>Ends</th><th>Days left</th></tr>
+{% for a in expiring %}
+<tr><td><a href="{{ a.episode.get_absolute_url }}">{{ a.episode.client }}</a></td><td>{{ a.funding_source }}</td>
+<td>{{ a.auth_number }}</td><td>{{ a.end_date|date:"m/d/Y" }}</td><td><span class="badge expiring">{{ a.days_remaining }}</span></td></tr>
+{% empty %}<tr><td colspan="5" class="muted">Nothing expiring in the next 14 days.</td></tr>{% endfor %}
+</table></div>
+
+<div class="grid" style="margin-top:8px">
+<div><h2>Admitted in the last 14 days</h2><div class="table-wrap"><table>
+{% for e in recent_admits %}<tr><td><a href="{{ e.get_absolute_url }}">{{ e.client }}</a></td><td>{{ e.funding_source }}</td><td>{{ e.admit_date|date:"m/d" }}</td></tr>
+{% empty %}<tr><td class="muted">None.</td></tr>{% endfor %}</table></div></div>
+<div><h2>Discharged in the last 14 days</h2><div class="table-wrap"><table>
+{% for e in recent_discharges %}<tr><td><a href="{{ e.get_absolute_url }}">{{ e.client }}</a></td><td>{{ e.get_discharge_reason_display }}</td><td>{{ e.discharge_date|date:"m/d" }}</td></tr>
+{% empty %}<tr><td class="muted">None.</td></tr>{% endfor %}</table></div></div>
+</div>
+{% endblock %}

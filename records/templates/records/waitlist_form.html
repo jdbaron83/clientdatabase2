@@ -1,0 +1,14 @@
+{% extends "records/base.html" %}
+{% block title %}Add to waitlist{% endblock %}
+{% block content %}
+<h1>Add {% if client %}{{ client }} {% endif %}to the waitlist</h1>
+<form method="post" class="stack">{% csrf_token %}
+{% if client_form %}
+<div class="card"><h2 style="margin-top:0">Client</h2>
+<p class="muted">If this person is already in the system (same SSN, or same name and date of birth), the entry is linked to their existing record.</p>
+{{ client_form.as_p }}</div>
+{% endif %}
+<div class="card"><h2 style="margin-top:0">Waitlist details</h2>{{ entry_form.as_p }}</div>
+<div class="actions"><button class="btn">Add to waitlist</button><a class="btn secondary" href="{% url 'waitlist' %}">Cancel</a></div>
+</form>
+{% endblock %}

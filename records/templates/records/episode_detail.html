@@ -1,0 +1,43 @@
+{% extends "records/base.html" %}
+{% block title %}{{ episode.client }} admission{% endblock %}
+{% block content %}
+<h1><a href="{{ episode.client.get_absolute_url }}">{{ episode.client }}</a> · {{ episode.funding_source }}</h1>
+<div class="actions">
+{% if perms.records.change_episode %}<a class="btn secondary" href="{% url 'episode_update' episode.pk %}">Edit</a>
+{% if episode.is_active %}<a class="btn" href="{% url 'episode_discharge' episode.pk %}">Discharge</a>{% endif %}{% endif %}
+{% if perms.records.add_authorization %}<a class="btn secondary" href="{% url 'authorization_create' episode.pk %}">Add authorization</a>{% endif %}
+{% if perms.records.add_medication %}<a class="btn secondary" href="{% url 'medication_create' episode.pk %}">Add MAT medication</a>{% endif %}
+</div>
+<div class="card"><dl class="facts">
+<dt>Client ID / MR#</dt><dd>{{ episode.record_id|default:"—" }}</dd>
+<dt>Level of care</dt><dd>{{ episode.get_level_of_care_display }}</dd>
+<dt>Funding source</dt><dd>{{ episode.funding_source }}{% if episode.initial_funding_source and episode.initial_funding_source != episode.funding_source %} (initially {{ episode.initial_funding_source }}){% endif %}</dd>
+<dt>Secondary funding / notes</dt><dd>{{ episode.secondary_funding|default:"—" }}</dd>
+<dt>Admitted</dt><dd>{{ episode.admit_date|date:"m/d/Y" }}</dd>
+<dt>Discharged</dt><dd>{% if episode.is_active %}<span class="badge active">Active</span>{% else %}{{ episode.discharge_date|date:"m/d/Y" }} · {{ episode.get_discharge_reason_display }}{% if episode.discharge_note %} · {{ episode.discharge_note }}{% endif %}{% endif %}</dd>
+<dt>Length of stay</dt><dd>{{ episode.length_of_stay }} days</dd>
+<dt>Bed</dt><dd>{{ episode.bed|default:"—" }}</dd>
+<dt>Diagnosis</dt><dd>{{ episode.diagnosis_code|default:"—" }}</dd>
+<dt>Disability / SSI</dt><dd>{{ episode.benefits_notes|default:"—" }}</dd>
+{% if episode.notes %}<dt>Notes</dt><dd>{{ episode.notes|linebreaksbr }}</dd>{% endif %}
+</dl></div>
+
+<h2>Authorizations</h2>
+<div class="table-wrap"><table>
+<tr><th>Auth #</th><th>Funding</th><th>OCA</th><th>Start</th><th>End</th><th>Days</th><th>Remaining</th><th></th></tr>
+{% for a in authorizations %}
+<tr><td>{{ a.auth_number|default:"(needed)" }}</td><td>{{ a.funding_source }}</td><td>{{ a.oca|default:"" }}</td><td>{{ a.start_date|date:"m/d/Y" }}</td>
+<td>{{ a.end_date|date:"m/d/Y" }}</td><td>{{ a.days_authorized|default:"" }}</td>
+<td><span class="badge {{ a.status }}">{{ a.days_remaining|default_if_none:a.status }}</span></td>
+<td>{% if perms.records.change_authorization %}<a href="{% url 'authorization_update' a.pk %}">Edit</a>{% endif %}</td></tr>
+{% empty %}<tr><td colspan="8" class="muted">No authorizations.</td></tr>{% endfor %}
+</table></div>
+
+{% if medications %}
+<h2>MAT medications</h2>
+<div class="table-wrap"><table>
+<tr><th>Medication</th><th>Qty</th><th>Fill date</th><th>Next fill</th></tr>
+{% for m in medications %}<tr><td>{{ m }}</td><td>{{ m.quantity|default:"" }}</td><td>{{ m.fill_date|date:"m/d/Y" }}</td><td>{{ m.next_fill_date|date:"m/d/Y" }}</td></tr>{% endfor %}
+</table></div>
+{% endif %}
+{% endblock %}

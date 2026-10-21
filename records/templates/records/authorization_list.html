@@ -1,0 +1,18 @@
+{% extends "records/base.html" %}
+{% block title %}Authorizations{% endblock %}
+{% block content %}
+<h1>Authorizations for active clients</h1>
+<div class="actions">
+<a class="btn {% if view != 'expiring' %}secondary{% endif %}" href="?view=expiring">Expired or expiring in 14 days</a>
+<a class="btn {% if view != 'needed' %}secondary{% endif %}" href="?view=needed">Auth number needed</a>
+<a class="btn {% if view != 'all' %}secondary{% endif %}" href="?view=all">All</a>
+</div>
+<div class="table-wrap"><table>
+<tr><th>Client</th><th>Funding</th><th>OCA</th><th>Auth #</th><th>Start</th><th>End</th><th>Status</th></tr>
+{% for a in auths %}
+<tr><td><a href="{{ a.episode.get_absolute_url }}">{{ a.episode.client }}</a></td><td>{{ a.funding_source }}</td><td>{{ a.oca|default:"" }}</td>
+<td>{{ a.auth_number|default:"(needed)" }}</td><td>{{ a.start_date|date:"m/d/Y" }}</td><td>{{ a.end_date|date:"m/d/Y" }}</td>
+<td><span class="badge {{ a.status }}">{{ a.status|capfirst }}{% if a.days_remaining is not None %} ({{ a.days_remaining }}d){% endif %}</span></td></tr>
+{% empty %}<tr><td colspan="7" class="muted">Nothing here.</td></tr>{% endfor %}
+</table></div>
+{% endblock %}

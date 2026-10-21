@@ -1,0 +1,8 @@
+.env
+__pycache__/
+*.pyc
+staticfiles/
+data/
+*.xlsx
+seed_review*.csv
+backups/
